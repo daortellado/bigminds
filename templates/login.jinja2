@@ -1,0 +1,50 @@
+{% extends "layout.jinja2" %}
+
+
+{% block content %}
+  <div class="form-wrapper">
+
+    <div class="logo" style="text-align:center;">
+      <img style"margin: 0 auto;" src="{{ url_for('static', filename='media/logo.png') }}" alt="logo"/>
+    </div>
+<div class="form-style-8">
+    <h2>Log in to your Account</h2>
+
+    <form method="POST" action="/login">
+      {{ form.csrf_token }}
+
+      <fieldset class="email">
+        {{ form.email.label }}
+        {{ form.email(placeholder='youremail@example.com') }}
+        {% if form.email.errors %}
+          <ul class="errors">
+            {% for error in form.email.errors %}
+              <li>{{ error }}</li>{% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <fieldset class="password">
+        {{ form.password.label }}
+        {{ form.password }}
+        {% if form.email.errors %}
+          <ul class="errors">
+            {% for error in form.password.errors %}
+              <li>{{ error }}</li>{% endfor %}
+          </ul>
+        {% endif %}
+      </fieldset>
+
+      <div class="submit-button">
+        {{ form.submit }}
+      </div>
+
+      <div class="login-signup">
+        <span>Don't have an account?</span>
+      </div>
+      
+
+    </form>
+    </div>
+  </div>
+{% endblock %}
