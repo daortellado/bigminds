@@ -4,6 +4,7 @@
             socket.emit('connected');
             $('#myName').val('');
             $('#myMessage').val('');
+            $('#mychanMessage').val('');
         });
 
         socket.on('message', function(msg) {
@@ -18,6 +19,27 @@
             }
 
             $("#messagesContainer").prepend("<div class=\"card mb-2\">\n" +
+                "<div class=\"card-header\">\n" +
+                "<h5 class=\"card-title\">"+name+"</h5><h6 class=\"card-subtitle mb-2 text-muted\">"+date+"</h6>\n" +
+                "</div>\n" +
+                "<div class=\"card-body\">\n" +
+                ""+message+"\n" +
+                "</div>\n" +
+                "</div>");
+            console.log('Received message');
+        });
+                socket.on('channel', function(json_chan) {
+            var name = json_chan.name;
+            var message = json_chan.content;
+            var date = json_chan.date;
+            if (name == '') {
+                name = 'Anonymous';
+            }
+            if (message == '') {
+                message = 'I forgot to add a message.';
+            }
+
+            $("#channelContainer").prepend("<div class=\"card mb-2\">\n" +
                 "<div class=\"card-header\">\n" +
                 "<h5 class=\"card-title\">"+name+"</h5><h6 class=\"card-subtitle mb-2 text-muted\">"+date+"</h6>\n" +
                 "</div>\n" +
@@ -65,5 +87,30 @@
             // $("#toggleFieldset").children().attr("disabled", "disabled");
             // $('#myMessage').attr('disabled', 'disabled');
             // $('#myName').attr('disabled', 'disabled');
+        });
+        $('#sendchanButton').on('click', function() {
+            var message = $('#mychanMessage').val();
+            console.log('Clicked!');
+            console.log(uName)
+            var chn = {name : uName, message : message}
+            socket.emit('channel', chn);
+            return $('#mychanMessage').val('');
+            // $("#toggleFieldset").children().attr("disabled", "disabled");
+            // $('#myMessage').attr('disabled', 'disabled');
+            // $('#myName').attr('disabled', 'disabled');
+        });
+        $('#switchButton').on('click', function() {
+            console.log('clicked');
+            document.getElementById("messagesContainer").className = "d-none container mt-5";
+            document.getElementById("channelContainer").className = "container mt-5";
+            document.getElementById("submitForm").className = "d-none container mt-5";
+            document.getElementById("submitchanForm").className = "container mt-5";
+        });
+        $('#switchbackButton').on('click', function() {
+            console.log('clickedback');
+            document.getElementById("messagesContainer").className = "container mt-5";
+            document.getElementById("channelContainer").className = "d-none container mt-5";
+            document.getElementById("submitForm").className = "container mt-5";
+            document.getElementById("submitchanForm").className = "d-none container mt-5";
         });
     });

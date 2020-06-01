@@ -25,7 +25,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 database = SQLAlchemy(app)
 
 from forms import LoginForm, TimeForm, AppSettingsForm, MediaFileUploadForm
-from models import Instance, Message, EduSchedu, ClassNotiQueue, User
+from models import Instance, Message, Channel, EduSchedu, ClassNotiQueue, User
 import events
 
 # # config
@@ -75,10 +75,11 @@ def page():
     instance = Instance.query.first()
     image_file = url_for('static', filename=f'media/{instance.media_file}')
     messages = Message.query.order_by(Message.id.desc()).all()
+    channels = Channel.query.order_by(Channel.id.desc()).all()
     notifications = ClassNotiQueue.query.order_by(ClassNotiQueue.id.desc()).all()
     room_name = 'home'
     return render_template('home.html', title=instance.homepage_title, room=room_name,
-                           messages=messages, notifications=notifications, chat_enabled = instance.chat_enabled,
+                           messages=messages, channels=channels, notifications=notifications, chat_enabled = instance.chat_enabled,
                            time=eduschedu.time, dow=eduschedu.dow, classname=eduschedu.classname, zoomlink=eduschedu.zoomlink)
 
 @app.route('/admin', methods=['GET', 'POST'])

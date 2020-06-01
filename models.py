@@ -24,6 +24,12 @@ class Message(database.Model):
     name = database.Column(database.String(100), default='')
     content = database.Column(database.String(500), default='')
 
+class Channel(database.Model):
+    id = database.Column(database.Integer, primary_key=True)
+    date_posted = database.Column(database.String(30))
+    name = database.Column(database.String(100), default='')
+    content = database.Column(database.String(500), default='')
+
 class EduSchedu(database.Model):
     id = database.Column(database.Integer, primary_key=True)
     time = database.Column(TIME(), nullable=False)
