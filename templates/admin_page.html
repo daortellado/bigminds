@@ -44,7 +44,7 @@
   color: #666;
   text-align: center;
 }
-table {
+table { width: 100%;
     display: table;
 }
 table tr { width: 13.6%;
@@ -99,10 +99,65 @@ table tr td {
                             {{ time_form.zoomlink.label(class="form-control-label mr-3") }}
                             {{ time_form.zoomlink(class_="form-control") }}
                         </div>
+                        <div>
+                            {{ time_form.enroll.label(class="form-control-label mr-3") }}
+                            {{ time_form.enroll(class_="form-control") }}
+                        </div>
                         <div class="input-group mb-2">
                             {{ time_form.submit_1(class_="form-control btn-outline-success") }}
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+            <div class="container mb-5">
+        <div class="card border border-danger mb-3">
+            <div class="card-header">Administration</div>
+            <div class="card-body">
+                <form class="form-inline">
+                    <button type="button" data-toggle="modal" data-target="#resetCommentsModal" class="btn btn-danger mb-1">Reset Chat</button>
+                    <button type="button" data-toggle="modal" data-target="#resetViewModal" class="btn btn-warning mr-3 mb-1">Reset Classes, Appointments and Notifications</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="container mb-5">
+            <div class="modal fade" id="resetCommentsModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Reset Chat?</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        This can't be undone!
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <a href="{{ url_for('reset_comments') }}" class="btn btn-danger" role="button" aria-pressed="true">Reset Chat</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+                <div class="modal fade" id="resetViewModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Reset Classes, Appoitments and Notifications?</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        This can't be undone!
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <a href="{{ url_for('reset_views') }}" class="btn btn-danger" role="button" aria-pressed="true">Reset Classes, Appointments and Notifications?</a>
+                    </div>
                 </div>
             </div>
         </div>

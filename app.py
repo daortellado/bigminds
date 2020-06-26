@@ -24,8 +24,8 @@ app.config['SECRET_KEY'] = 'xZxM5GMQ37CQw9kf6SRS33LadZTpSKt6'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 database = SQLAlchemy(app)
 
-from forms import LoginForm, TimeForm, AppSettingsForm, MediaFileUploadForm
-from models import Instance, Message, Channel, EduSchedu, ClassNotiQueue, User
+from forms import LoginForm, TimeForm, AppSettingsForm, MediaFileUploadForm, ApptForm
+from models import Instance, Message, Channel, EduSchedu, ClassNotiQueue, User, ApptNotiQueue, ApptSchedu
 import events
 
 # # config
@@ -68,19 +68,35 @@ def admin_required(f):
 
 
 # some protected url
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 @login_required
 def page():
     eduschedu = EduSchedu.query.first()
+    apptschedu = ApptSchedu.query.first()
+    userenroll = User.query.first()
     instance = Instance.query.first()
     image_file = url_for('static', filename=f'media/{instance.media_file}')
     messages = Message.query.order_by(Message.id.desc()).all()
     channels = Channel.query.order_by(Channel.id.desc()).all()
     notifications = ClassNotiQueue.query.order_by(ClassNotiQueue.id.desc()).all()
+    appointments = ApptNotiQueue.query.order_by(ApptNotiQueue.id.desc()).all()
     room_name = 'home'
+    # classenroll = userenroll.enrolled.all()[-1].classname
+    appt_form = ApptForm(prefix='appt_form')
+    if appt_form.validate_on_submit():
+        apptschedu = ApptSchedu(teacher = str(appt_form.user_list.data), time = appt_form.time.data, dow = appt_form.dow.data, zoomlink = "zoom.com")
+        database.session.add(apptschedu)
+        usertest = User.query.first()
+        apptscheduler = ApptSchedu.query.order_by(ApptSchedu.id.desc()).first()
+        apptscheduler.apptstudents.append(usertest)
+        database.session.commit()
+        flash('Appointment Scheduled!', 'info')
+        return redirect(url_for('page'))
     return render_template('home.html', title=instance.homepage_title, room=room_name,
-                           messages=messages, channels=channels, notifications=notifications, chat_enabled = instance.chat_enabled,
-                           time=eduschedu.time, dow=eduschedu.dow, classname=eduschedu.classname, zoomlink=eduschedu.zoomlink)
+                           messages=messages, channels=channels, notifications=notifications, appointments=appointments, chat_enabled = instance.chat_enabled,
+                           current_user=current_user, appt_form=appt_form)
+
+# time=eduschedu.time, dow=eduschedu.dow, classname=eduschedu.classname, zoomlink=eduschedu.zoomlink, appt_form=appt_form, appttime=apptschedu.time, apptdow=apptschedu.dow, teacher=apptschedu.teacher, apptzoomlink=apptschedu.zoomlink, classenroll=classenroll
 
 @app.route('/admin', methods=['GET', 'POST'])
 @admin_required
@@ -99,6 +115,12 @@ def admin_page():
         database.session.add(eduschedu)
         database.session.commit()
         flash('Class Updated!', 'info')
+        if time_form.enroll.data == True:
+            print('sup')
+            usertest = User.query.first()
+            eduscheduler = EduSchedu.query.order_by(EduSchedu.id.desc()).first()
+            eduscheduler.students.append(usertest)
+            database.session.commit()
         return redirect(url_for('admin_page'))
 
     return render_template('admin_page.html', time_form=time_form, monThings=monThings, tueThings=tueThings, wedThings=wedThings, thuThings=thuThings, friThings=friThings, satThings=satThings, sunThings=sunThings)
@@ -106,6 +128,24 @@ def admin_page():
 @app.route('/not_admin')
 def not_admin():
     return render_template('not_admin.html')
+
+@app.route('/admin/reset-comments', methods=['GET'])
+def reset_comments():
+    Message.query.delete()
+    Channel.query.delete()
+    database.session.commit()
+    flash('Chat cleared!', 'info')
+    return redirect(url_for('admin_page'))
+
+@app.route('/admin/reset-views', methods=['GET'])
+def reset_views():
+    EduSchedu.query.delete()
+    ApptSchedu.query.delete()
+    ClassNotiQueue.query.delete()
+    ApptNotiQueue.query.delete()
+    database.session.commit()
+    flash('Classes, Appointments and Notifcations cleared!', 'info')
+    return redirect(url_for('admin_page'))
  
 # somewhere to login
 # @app.route("/login", methods=["GET", "POST"])
@@ -200,9 +240,9 @@ def load_user(user_id):
 
 # adding test user
 
-# newUser = User(id = 1,
-#                     name = 'test', email = 'test',
-#                     role = 'Admin', password = 'test')
+# newUser = User(id = 2,
+#                     name = 'notadmin', email = 'notadmin',
+#                     role = '', password = 'notadmin')
 
 # database.session.add(newUser)   
 # database.session.commit()
@@ -232,6 +272,17 @@ def class_noti(link):
     }
     socketio.emit('noti', json_data_noti)
 
+def appt_noti(apptlink):
+    appt_object = ApptNotiQueue(linkcont=apptlink.zoomlink, now=datetime.datetime.now().strftime("%H:%M"), teacher = apptlink.teacher)
+    database.session.add(appt_object)
+    database.session.commit()
+    json_data_apptnoti = {
+        'teacher' : apptlink.teacher,
+        'linkcont' : apptlink.zoomlink,
+        'now' : datetime.datetime.now().strftime("%H:%M")
+    }
+    socketio.emit('apptnoti', json_data_apptnoti)
+
 # def job_function():
 #     link = EduSchedu.query.first()
 #     if link.datetime == 'blue':
@@ -239,6 +290,7 @@ def class_noti(link):
 #         class_noti(link)
 def job_function():
     link = EduSchedu.query.all()
+    apptlink = ApptSchedu.query.all()
     today = int(datetime.datetime.now().weekday())
     nowtime = str(datetime.datetime.now().strftime("%H:%M:00"))
     for i in range(len(link)):
@@ -249,6 +301,20 @@ def job_function():
         if link[i].dow == today and str(link[i].time) == nowtime:
             print(link[i].zoomlink)
             class_noti(link[i])
+    for i in range(len(apptlink)):
+        print(apptlink[i].time)
+        print(nowtime)
+        print(today)
+        print(apptlink[i].dow)
+        if apptlink[i].dow == today and str(apptlink[i].time) == nowtime:
+            print(apptlink[i].zoomlink)
+            appt_noti(apptlink[i])
+
+#test relationship
+# usertest = User.query.first()
+# eduscheduler = EduSchedu.query.first()
+# eduscheduler.students.append(usertest)
+# database.session.commit()
 
 @socketio.on('username')
 def senduser():

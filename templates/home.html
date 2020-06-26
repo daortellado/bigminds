@@ -37,6 +37,22 @@
                 <a href="/logout" role='button' class='btn btn-primary float-right'>Logout</a>
    </h1>
     </div>
+<div class="row">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mt-5">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+</div>
 <div class="row rounded border-bottom border-secondary bottompadded">
 <div class ="col" style="padding-right:20px; padding-left:20px; border-right: 1px solid #ccc;">
     <button id="switchbackButton" class="btn btn-primary">All</button>
@@ -144,6 +160,69 @@
 </div>
 </div>
 <hr/>
+<div class="row toppadded">
+<div class="col col-first" style="padding-right:20px; padding-left:20px; border-right: 1px solid #ccc;">
+<button type="button" id="calendly-button" class="btn btn-primary">Calendly</button>
+<button type="button" id="form-button" class="btn btn-primary">Built-In Form</button>
+<div class="d-none" id="formContainer">
+<!--     <table>
+        <tr valign="top">
+            <td><img src="{{ current_user.avatar(128) }}"></td>
+            <td><h1>User: {{ current_user.name }}</h1></td>
+        </tr>
+    </table> -->
+        <div class="card border border-info mb-3">
+            <div class="card-header">Schedule an Appointment</div>
+            <div class="card-body">
+                <div>
+                    <form class="form mt-2" method="POST">
+                        {{ appt_form.hidden_tag() }}
+                        <div class="input-group mb-2">
+                            {{ appt_form.user_list.label(class="form-control-label mr-3") }}
+                            {{ appt_form.user_list(class_="form-control") }}
+                        </div>
+                        <div class="input-group mb-2">
+                            {{ appt_form.time.label(class="form-control-label mr-3") }}
+                            {{ appt_form.time(class_="form-control") }}
+                        </div>
+                        <div class="input-group mb-2">
+                            {{ appt_form.dow.label(class="form-control-label mr-3") }}
+                            {{ appt_form.dow(class_="form-control") }}
+                        </div>
+                        <div class="input-group mb-2">
+                            {{ appt_form.submit_1(class_="form-control btn-outline-success") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+</div>        
+<!-- Calendly inline widget begin -->
+<div id="calendlyContainer">
+<div class="calendly-inline-widget" data-url="https://calendly.com/daortellado?primary_color=18bc9c" style="min-width:320px;height:630px;"></div>
+<script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js"></script>
+</div>
+<!-- Calendly inline widget end -->
+    </div>
+<div class="col col-first">
+ <h5 class="card-title" style="padding-top:20px">Meeting with a teacher? &#10549;</h5>
+<!-- <h2>Latest enrolled in:</h2>
+{{ classenroll }} -->
+    <div class="container mt-5" id="apptnotificationsContainer">
+        {% for appointment in appointments %}
+            <div class="card mb-2">
+                <div class="card-header">
+                        <h5 class="card-title">Appointment with {{ appointment.teacher }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ appointment.now }}</h6>
+                </div>
+                <div class="card-body">
+                    {{ appointment.linkcont }}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+</div>
 </div>
 </body>
 <!-- <body style="background-color:#{{ color }};">

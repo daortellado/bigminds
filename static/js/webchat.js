@@ -78,6 +78,20 @@
                 "</div>");
             console.log('Received noti');
         });
+        socket.on('apptnoti', function(json_data_apptnoti) {
+            var apptlinkcont = json_data_apptnoti.linkcont;
+            var apptnow = json_data_apptnoti.now;
+            var apptteacher = json_data_apptnoti.teacher;
+            $("#apptnotificationsContainer").prepend("<div class=\"card mb-2\">\n" +
+                "<div class=\"card-header\">\n" +
+                "<h5 class=\"card-title\">Appointment with "+apptteacher+"</h5><h6 class=\"card-subtitle mb-2 text-muted\">"+apptnow+"</h6>\n" +
+                "</div>\n" +
+                "<div class=\"card-body\">\n" +
+                ""+apptlinkcont+"\n" +
+                "</div>\n" +
+                "</div>");
+            console.log('Received noti');
+        });
         $('#sendButton').on('click', function() {
             var message = $('#myMessage').val();
             console.log('Clicked!');
@@ -87,6 +101,14 @@
             // $("#toggleFieldset").children().attr("disabled", "disabled");
             // $('#myMessage').attr('disabled', 'disabled');
             // $('#myName').attr('disabled', 'disabled');
+        });
+        $('#calendly-button').on('click', function() {
+            document.getElementById("calendlyContainer").className = "";
+            document.getElementById("formContainer").className = "d-none";
+        });
+        $('#form-button').on('click', function() {
+            document.getElementById("calendlyContainer").className = "d-none";
+            document.getElementById("formContainer").className = "";
         });
         $('#sendchanButton').on('click', function() {
             var message = $('#mychanMessage').val();
